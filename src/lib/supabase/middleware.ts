@@ -9,17 +9,9 @@ export async function updateSession(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  // If Supabase env vars are not configured yet, allow public routes and redirect protected routes to /auth/login
+  // When Supabase env vars are not configured yet (100% free local/demo mode),
+  // allow /app and /onboarding so users can run mocks without external setup.
   if (!url || !anonKey) {
-    const isProtected = PROTECTED_PREFIXES.some((prefix) =>
-      request.nextUrl.pathname.startsWith(prefix)
-    );
-    if (isProtected) {
-      const loginUrl = request.nextUrl.clone();
-      loginUrl.pathname = '/auth/login';
-      loginUrl.searchParams.set('next', request.nextUrl.pathname);
-      return NextResponse.redirect(loginUrl);
-    }
     return supabaseResponse;
   }
 
