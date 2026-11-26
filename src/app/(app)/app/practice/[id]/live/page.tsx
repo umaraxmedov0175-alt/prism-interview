@@ -2,12 +2,15 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Send } from 'lucide-react';
+import { Mic, MicOff, Send, Volume2, VolumeX } from 'lucide-react';
 import { InterviewerOrb } from '@/components/interview/InterviewerOrb';
+import { LiveCaption } from '@/components/interview/LiveCaption';
+import { RecordingBadge } from '@/components/interview/RecordingBadge';
 import { SessionTimer } from '@/components/interview/SessionTimer';
 import { TranscriptLine } from '@/components/interview/TranscriptLine';
 import { ErrorState } from '@/components/states/ErrorState';
 import { PageSkeleton } from '@/components/states/PageSkeleton';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -16,6 +19,27 @@ import {
   saveSession,
   type StoredSession,
 } from '@/lib/storage/local-sessions';
+
+interface SpeechRecognitionAlternativeLike {
+  transcript: string;
+}
+interface SpeechRecognitionResultLike {
+  isFinal: boolean;
+  0: SpeechRecognitionAlternativeLike;
+}
+interface SpeechRecognitionEventLike {
+  results: ArrayLike<SpeechRecognitionResultLike>;
+}
+interface SpeechRecognitionLike {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
+  onerror: (() => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+}
 
 export default function LiveInterviewPage() {
   const params = useParams<{ id: string }>();
@@ -27,16 +51,34 @@ export default function LiveInterviewPage() {
   >([]);
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
+  const [aiSpeaking, setAiSpeaking] = useState(false);
   const [ending, setEnding] = useState(false);
   const [paused, setPaused] = useState(false);
   const [elapsedSec, setElapsedSec] = useState(0);
+  const [captionsVisible, setCaptionsVisible] = useState(true);
+  const [voiceMode, setVoiceMode] = useState<'gemini-live' | 'browser-speech'>('browser-speech');
+  const [ttsEnabled, setTtsEnabled] = useState(true);
+  const [micActive, setMicActive] = useState(false);
+  const [recording, setRecording] = useState(false);
   const [error, setError] = useState('');
+
   const startTimeRef = useRef<number>(Date.now());
   const turnStartRef = useRef<number>(Date.now());
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
 
   useEffect(() => {
     const loaded = getSession(params.id);
     setSession(loaded);
+
+    fetch('/api/live/token', { method: 'POST' })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.mode === 'gemini-live') setVoiceMode('gemini-live');
+      })
+      .catch(() => {
+        // Stay in browser-speech fallback
+      });
+
     if (loaded) {
       setTurns(loaded.turns);
       if (loaded.turns.length === 0) {
@@ -44,6 +86,13 @@ export default function LiveInterviewPage() {
       }
     }
     setLoading(false);
+
+    return () => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      recognitionRef.current?.stop();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
 
@@ -54,6 +103,75 @@ export default function LiveInterviewPage() {
     }, 1000);
     return () => clearInterval(timer);
   }, [paused]);
+
+  function speakText(text: string) {
+    if (!ttsEnabled || typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1.02;
+    utterance.onstart = () => setAiSpeaking(true);
+    utterance.onend = () => setAiSpeaking(false);
+    utterance.onerror = () => setAiSpeaking(false);
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function interruptAiSpeech() {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    setAiSpeaking(false);
+  }
+
+  function toggleMic() {
+    if (micActive) {
+      recognitionRef.current?.stop();
+      setMicActive(false);
+      setRecording(false);
+      return;
+    }
+
+    interruptAiSpeech();
+    const win = window as unknown as {
+      SpeechRecognition?: new () => SpeechRecognitionLike;
+      webkitSpeechRecognition?: new () => SpeechRecognitionLike;
+    };
+    const SpeechRec = win.SpeechRecognition ?? win.webkitSpeechRecognition;
+
+    if (!SpeechRec) {
+      setError('Voice recognition is not supported in this browser. Use text input below.');
+      return;
+    }
+
+    const recognition = new SpeechRec();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = session?.interviewLanguage || 'en-US';
+
+    recognition.onresult = (event: SpeechRecognitionEventLike) => {
+      interruptAiSpeech(); // Barge-in when user starts speaking
+      let transcript = '';
+      for (let i = 0; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript + ' ';
+      }
+      setInput(transcript.trim());
+    };
+
+    recognition.onerror = () => {
+      setMicActive(false);
+      setRecording(false);
+    };
+
+    recognition.onend = () => {
+      setMicActive(false);
+      setRecording(false);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setMicActive(true);
+    setRecording(true);
+    turnStartRef.current = Date.now();
+  }
 
   async function requestAiReply(
     activeSession: StoredSession,
@@ -111,17 +229,19 @@ export default function LiveInterviewPage() {
         });
       }
 
+      const cleanText = fullText.replace('[END_INTERVIEW]', '').trim();
       const updatedTurns = [
         ...currentTurns,
         {
           speaker: 'ai' as const,
-          text: fullText.replace('[END_INTERVIEW]', '').trim(),
+          text: cleanText,
           startMs: aiStartMs,
           endMs: Date.now() - startTimeRef.current,
         },
       ];
       saveSession({ ...activeSession, turns: updatedTurns });
       turnStartRef.current = Date.now();
+      speakText(cleanText);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Streaming failed');
     } finally {
@@ -132,6 +252,12 @@ export default function LiveInterviewPage() {
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
     if (!session || !input.trim() || streaming) return;
+
+    if (micActive) {
+      recognitionRef.current?.stop();
+      setMicActive(false);
+      setRecording(false);
+    }
 
     const now = Date.now();
     const userTurn = {
@@ -151,19 +277,23 @@ export default function LiveInterviewPage() {
   function handleRepeatQuestion() {
     const lastAi = [...turns].reverse().find((t) => t.speaker === 'ai');
     if (!lastAi || !session) return;
+    const text = `Sure, let me repeat that: ${lastAi.text}`;
     const repeated = {
       speaker: 'ai' as const,
-      text: `Sure, let me repeat that: ${lastAi.text}`,
+      text,
       startMs: Date.now() - startTimeRef.current,
       endMs: Date.now() - startTimeRef.current + 1000,
     };
     const nextTurns = [...turns, repeated];
     setTurns(nextTurns);
     saveSession({ ...session, turns: nextTurns });
+    speakText(text);
   }
 
   async function handleEndInterview() {
     if (!session || ending) return;
+    interruptAiSpeech();
+    recognitionRef.current?.stop();
     setEnding(true);
     setError('');
     try {
@@ -212,10 +342,22 @@ export default function LiveInterviewPage() {
     );
   }
 
+  const latestTurn = turns[turns.length - 1];
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="flex flex-col justify-between gap-4 rounded-[12px] border border-border bg-surface p-4 sm:flex-row sm:items-center">
-        <InterviewerOrb speaking={streaming} name={`Alex · ${session.role} (${session.level})`} />
+        <div className="flex items-center gap-3">
+          <InterviewerOrb
+            speaking={streaming || aiSpeaking}
+            name={`Alex · ${session.role} (${session.level})`}
+          />
+          <Badge variant="neutral">
+            {voiceMode === 'gemini-live' ? 'Gemini Live' : 'Voice + Text'}
+          </Badge>
+          <RecordingBadge recording={recording} />
+        </div>
+
         <SessionTimer
           elapsedSec={elapsedSec}
           paused={paused}
@@ -226,9 +368,16 @@ export default function LiveInterviewPage() {
         />
       </div>
 
+      <LiveCaption
+        speaker={latestTurn?.speaker ?? null}
+        text={latestTurn?.text ?? ''}
+        visible={captionsVisible}
+        onToggle={() => setCaptionsVisible((v) => !v)}
+      />
+
       <Card>
         <CardContent className="space-y-4 p-5">
-          <div className="max-h-[420px] space-y-3 overflow-y-auto pr-1">
+          <div className="max-h-[380px] space-y-3 overflow-y-auto pr-1">
             {turns.map((turn, idx) => (
               <TranscriptLine key={idx} speaker={turn.speaker} text={turn.text} />
             ))}
@@ -241,14 +390,41 @@ export default function LiveInterviewPage() {
           )}
 
           <form onSubmit={handleSend} className="flex flex-col gap-3 sm:flex-row">
+            <div className="flex gap-2 sm:self-end">
+              <Button
+                type="button"
+                variant={micActive ? 'danger' : 'outline'}
+                onClick={toggleMic}
+                aria-label={micActive ? 'Stop microphone' : 'Start microphone'}
+                disabled={paused || ending}
+              >
+                {micActive ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                {micActive ? 'Listening' : 'Speak'}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => {
+                  if (ttsEnabled) interruptAiSpeech();
+                  setTtsEnabled((t) => !t);
+                }}
+                aria-label={ttsEnabled ? 'Mute interviewer voice' : 'Unmute interviewer voice'}
+              >
+                {ttsEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+              </Button>
+            </div>
             <textarea
               rows={2}
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(e) => {
+                interruptAiSpeech();
+                setInput(e.target.value);
+              }}
               placeholder={
                 paused
                   ? 'Session paused. Click Resume when ready...'
-                  : 'Type your answer here (include specific actions and numbers)...'
+                  : 'Speak with the mic or type your answer here...'
               }
               disabled={paused || streaming || ending}
               className="flex-1 rounded-[8px] border border-border bg-bg p-3 text-sm text-text placeholder:text-text-muted"

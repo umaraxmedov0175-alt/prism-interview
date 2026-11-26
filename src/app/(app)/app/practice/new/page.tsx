@@ -50,7 +50,7 @@ export default function NewPracticePage() {
         turns: [],
       });
 
-      router.push(`/app/practice/${data.id}/live`);
+      router.push(`/app/practice/${data.id}/check`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to start session');
       setSubmitting(false);

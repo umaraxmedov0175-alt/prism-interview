@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowRight, Target } from 'lucide-react';
 import { MetricTile } from '@/components/interview/MetricTile';
+import { ReplayPlayer } from '@/components/interview/ReplayPlayer';
 import { RubricBar } from '@/components/interview/RubricBar';
 import { ScoreRing } from '@/components/interview/ScoreRing';
 import { ErrorState } from '@/components/states/ErrorState';
@@ -12,16 +13,21 @@ import { PageSkeleton } from '@/components/states/PageSkeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getReport, type StoredReport } from '@/lib/storage/local-sessions';
+import { getReport, getSession, type StoredReport, type StoredSession } from '@/lib/storage/local-sessions';
 
 export default function ReportDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const [data, setData] = useState<StoredReport | null>(null);
+  const [session, setSession] = useState<StoredSession | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setData(getReport(params.id));
+    const loadedReport = getReport(params.id);
+    setData(loadedReport);
+    if (loadedReport) {
+      setSession(getSession(loadedReport.sessionId));
+    }
     setLoading(false);
   }, [params.id]);
 
@@ -174,6 +180,14 @@ export default function ReportDetailPage() {
           </Card>
         ))}
       </div>
+
+      {/* Synced Transcript Replay */}
+      {session && session.turns.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-lg font-semibold text-text">Transcript & Filler-Word Replay</h2>
+          <ReplayPlayer turns={session.turns} />
+        </div>
+      )}
     </div>
   );
 }

@@ -6,12 +6,19 @@ test.describe('Phase 1 — Text Mock to Report & Drill', () => {
     await expect(page.getByRole('heading', { name: /new mock interview/i })).toBeVisible();
 
     await page.getByRole('button', { name: /start interview room/i }).click();
+    await expect(page).toHaveURL(/\/app\/practice\/.+\/check/);
+    await expect(page.getByRole('heading', { name: /device check/i })).toBeVisible();
+    await page.getByRole('button', { name: /enter interview room/i }).click();
     await expect(page).toHaveURL(/\/app\/practice\/.+\/live/);
+
+    // Verify live captions & voice controls
+    await expect(page.getByText('Live Captions')).toBeVisible();
+    await expect(page.getByRole('button', { name: /start microphone/i })).toBeVisible();
 
     // Wait for initial AI interviewer greeting
     await expect(page.getByText('Interviewer').first()).toBeVisible();
 
-    const answerBox = page.getByPlaceholder(/type your answer here/i);
+    const answerBox = page.getByPlaceholder(/speak with the mic or type your answer here/i);
     await answerBox.fill(
       'I led the checkout database migration where I rewrote 12 slow queries, reducing p95 latency by 72 percent from 420ms to 115ms.'
     );
