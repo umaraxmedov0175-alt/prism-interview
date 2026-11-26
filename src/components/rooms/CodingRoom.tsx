@@ -269,9 +269,9 @@ export function CodingRoom({ initialProblemId, onSnapshot, className }: CodingRo
       </header>
 
       {/* Main split workspace */}
-      <div className="grid grid-cols-1 lg:grid-cols-12">
+      <div className="grid grid-cols-1 xl:grid-cols-12">
         {/* Left pane: prompt, hint & test cases */}
-        <div className="flex flex-col gap-4 border-b border-border bg-surface/50 p-4 lg:col-span-5 lg:border-b-0 lg:border-r">
+        <div className="flex flex-col gap-4 border-b border-border bg-surface/50 p-4 xl:col-span-5 xl:border-b-0 xl:border-r">
           <div className="flex items-center justify-between gap-2">
             <h2 className="text-base font-semibold text-text">{problem.title}</h2>
             <Badge variant={problem.difficulty === 'Easy' ? 'success' : 'warning'}>
@@ -348,8 +348,8 @@ export function CodingRoom({ initialProblemId, onSnapshot, className }: CodingRo
         </div>
 
         {/* Right pane: monospace editor & run controls */}
-        <div className="flex flex-col lg:col-span-7">
-          <div className="flex items-center justify-between border-b border-border bg-surface px-4 py-2">
+        <div className="flex flex-col xl:col-span-7">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-surface px-4 py-2">
             <label htmlFor={editorId} className="font-mono text-xs font-medium text-text-muted">
               solution.js (JavaScript)
             </label>
@@ -381,7 +381,7 @@ export function CodingRoom({ initialProblemId, onSnapshot, className }: CodingRo
             autoComplete="off"
             autoCorrect="off"
             aria-label={`JavaScript code editor for ${problem.title}`}
-            className="min-h-[340px] w-full flex-1 resize-y bg-bg p-4 font-mono text-sm leading-relaxed text-text focus:outline-none"
+            className="min-h-[340px] w-full flex-1 resize-y bg-bg p-4 font-mono text-sm leading-relaxed text-text focus-visible:ring-2 focus-visible:ring-primary"
           />
         </div>
       </div>

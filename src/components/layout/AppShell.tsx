@@ -215,10 +215,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Search className="h-4 w-4 text-text-muted" />
               <input
                 autoFocus
+                aria-label="Quick navigation search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Jump to..."
-                className="h-11 w-full bg-transparent px-3 text-sm text-text outline-none placeholder:text-text-muted"
+                className="h-11 w-full bg-transparent px-3 text-sm text-text focus-visible:ring-2 focus-visible:ring-primary placeholder:text-text-muted"
               />
             </div>
             <div className="p-2">

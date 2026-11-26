@@ -320,7 +320,7 @@ export function WhiteboardRoom({
       {/* Main workspace: Canvas + Notes panel */}
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_320px]">
         {/* Left: Toolbar + Canvas */}
-        <div className="flex flex-col overflow-hidden rounded-[10px] border border-border bg-surface">
+        <div className="flex flex-col overflow-hidden rounded-[12px] border border-border bg-surface">
           {/* Tool selector bar */}
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-bg px-3 py-2">
             <div className="flex flex-wrap items-center gap-1.5" role="toolbar" aria-label="Whiteboard tools">
@@ -350,7 +350,7 @@ export function WhiteboardRoom({
                     onClick={() => setBoxKind('service')}
                     aria-pressed={boxKind === 'service'}
                     className={cn(
-                      'inline-flex items-center gap-1 rounded-[6px] px-2 py-1 text-[11px] font-medium transition-colors',
+                      'inline-flex items-center gap-1 rounded-[8px] px-2 py-1 text-[11px] font-medium transition-colors',
                       boxKind === 'service'
                         ? 'bg-bg text-text shadow-xs'
                         : 'text-text-muted hover:text-text'
@@ -364,7 +364,7 @@ export function WhiteboardRoom({
                     onClick={() => setBoxKind('db')}
                     aria-pressed={boxKind === 'db'}
                     className={cn(
-                      'inline-flex items-center gap-1 rounded-[6px] px-2 py-1 text-[11px] font-medium transition-colors',
+                      'inline-flex items-center gap-1 rounded-[8px] px-2 py-1 text-[11px] font-medium transition-colors',
                       boxKind === 'db'
                         ? 'bg-bg text-text shadow-xs'
                         : 'text-text-muted hover:text-text'
@@ -548,7 +548,7 @@ export function WhiteboardRoom({
             {editingBox && (
               <div
                 style={{
-                  left: Math.max(8, editingBox.x),
+                  left: `clamp(8px, ${editingBox.x}px, calc(100% - 164px))`,
                   top: Math.max(8, editingBox.y + editingBox.height + 6),
                 }}
                 className="absolute z-10 flex items-center gap-1 rounded-[8px] border border-border bg-bg p-1 shadow-sm"
@@ -564,7 +564,7 @@ export function WhiteboardRoom({
                   onBlur={commitBoxLabel}
                   autoFocus
                   aria-label="Rename component box"
-                  className="h-7 w-36 rounded-[6px] border border-border bg-surface px-2 text-xs text-text focus:border-primary focus:outline-none"
+                  className="h-7 w-36 rounded-[8px] border border-border bg-surface px-2 text-xs text-text focus:border-primary focus-visible:ring-2 focus-visible:ring-primary"
                 />
               </div>
             )}
@@ -572,7 +572,7 @@ export function WhiteboardRoom({
         </div>
 
         {/* Right: Notes & Snapshot */}
-        <aside className="flex flex-col justify-between gap-3 rounded-[10px] border border-border bg-surface p-3">
+        <aside className="flex flex-col justify-between gap-3 rounded-[12px] border border-border bg-surface p-3">
           <div className="flex flex-1 flex-col gap-2">
             <div className="flex items-center justify-between gap-2">
               <label
@@ -592,7 +592,7 @@ export function WhiteboardRoom({
               onChange={(e) => setSummaryText(e.target.value)}
               placeholder={`Capture ${currentPhase.toLowerCase()} notes, capacity math, endpoints, schema, or trade-offs...`}
               rows={12}
-              className="min-h-[240px] w-full flex-1 resize-y rounded-[8px] border border-border bg-bg p-3 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none"
+              className="min-h-[240px] w-full flex-1 resize-y rounded-[8px] border border-border bg-bg p-3 text-sm text-text placeholder:text-text-muted focus:border-primary focus-visible:ring-2 focus-visible:ring-primary"
             />
           </div>
 

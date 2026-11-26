@@ -377,9 +377,9 @@ export function CaseRoom({ onSnapshot, initialCaseId, className }: CaseRoomProps
       </div>
 
       {/* Main Two-Column Grid */}
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-12">
         {/* Left Column: Case Prompt + Progressive Exhibits */}
-        <div className="flex flex-col gap-4 lg:col-span-6">
+        <div className="flex flex-col gap-4 xl:col-span-6">
           <Card className="bg-surface border-border">
             <CardHeader className="pb-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -488,7 +488,7 @@ export function CaseRoom({ onSnapshot, initialCaseId, className }: CaseRoomProps
         </div>
 
         {/* Right Column: Structured Scratchpad + Quick Math Calculator */}
-        <div className="flex flex-col gap-4 lg:col-span-6">
+        <div className="flex flex-col gap-4 xl:col-span-6">
           {/* Case Scratchpad */}
           <Card className="bg-surface border-border">
             <CardHeader className="pb-3">
@@ -541,9 +541,9 @@ export function CaseRoom({ onSnapshot, initialCaseId, className }: CaseRoomProps
                 onBlur={() => onSnapshot?.(activeDraft.scratchpad, activeDraft.revealedCount)}
                 placeholder="Structure your issue tree, hypotheses, exhibit takeaways, and final recommendation..."
                 rows={12}
-                className="w-full resize-y rounded-[8px] border border-border bg-bg p-3 font-sans text-sm leading-relaxed text-text placeholder:text-text-muted/70 focus:border-primary focus:outline-none"
+                className="w-full resize-y rounded-[8px] border border-border bg-bg p-3 font-sans text-sm leading-relaxed text-text placeholder:text-text-muted focus:border-primary focus-visible:ring-2 focus-visible:ring-primary"
               />
-              <div className="mt-2 flex items-center justify-between text-xs text-text-muted">
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-1 text-xs text-text-muted">
                 <span>{activeDraft.scratchpad.length} characters</span>
                 <span>Tip: Click &ldquo;Insert outline&rdquo; for a guided issue tree</span>
               </div>
@@ -571,7 +571,7 @@ export function CaseRoom({ onSnapshot, initialCaseId, className }: CaseRoomProps
                   value={expression}
                   onChange={(e) => setExpression(e.target.value)}
                   placeholder="e.g. (119.9 - 110) / 110 * 100"
-                  className="h-10 flex-1 rounded-[8px] border border-border bg-bg px-3 font-mono text-sm text-text placeholder:text-text-muted/70 focus:border-primary focus:outline-none"
+                  className="h-10 flex-1 rounded-[8px] border border-border bg-bg px-3 font-mono text-sm text-text placeholder:text-text-muted focus:border-primary focus-visible:ring-2 focus-visible:ring-primary"
                 />
                 <Button type="submit" variant="primary" size="md">
                   Evaluate
@@ -604,7 +604,7 @@ export function CaseRoom({ onSnapshot, initialCaseId, className }: CaseRoomProps
                         key={`${entry.expression}-${idx}`}
                         type="button"
                         onClick={() => handleAppendResultToScratchpad(entry)}
-                        className="flex items-center justify-between rounded-[6px] border border-border bg-bg px-2.5 py-1.5 text-left font-mono text-xs text-text transition-colors hover:border-primary/50"
+                        className="flex items-center justify-between rounded-[8px] border border-border bg-bg px-2.5 py-1.5 text-left font-mono text-xs text-text transition-colors hover:border-primary/50"
                       >
                         <span className="truncate text-text-muted">{entry.expression}</span>
                         <span className="ml-3 shrink-0 font-semibold text-text">

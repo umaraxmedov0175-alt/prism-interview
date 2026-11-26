@@ -401,6 +401,7 @@ export default function LiveInterviewPage() {
             </div>
             <textarea
               rows={2}
+              aria-label="Your interview answer"
               value={input}
               onChange={(e) => {
                 interruptAiSpeech();

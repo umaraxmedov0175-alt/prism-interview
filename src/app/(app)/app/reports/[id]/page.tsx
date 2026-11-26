@@ -53,7 +53,7 @@ export default function ReportDetailPage() {
           </p>
           <h1 className="text-2xl font-semibold text-text">Interview Feedback Report</h1>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button type="button" variant="outline" onClick={() => window.print()}>
             <Printer className="h-4 w-4" />
             Export PDF
