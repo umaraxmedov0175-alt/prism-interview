@@ -8,6 +8,9 @@ import { LiveCaption } from '@/components/interview/LiveCaption';
 import { RecordingBadge } from '@/components/interview/RecordingBadge';
 import { SessionTimer } from '@/components/interview/SessionTimer';
 import { TranscriptLine } from '@/components/interview/TranscriptLine';
+import { CaseRoom } from '@/components/rooms/CaseRoom';
+import { CodingRoom } from '@/components/rooms/CodingRoom';
+import { WhiteboardRoom } from '@/components/rooms/WhiteboardRoom';
 import { ErrorState } from '@/components/states/ErrorState';
 import { PageSkeleton } from '@/components/states/PageSkeleton';
 import { Badge } from '@/components/ui/badge';
@@ -343,31 +346,13 @@ export default function LiveInterviewPage() {
   }
 
   const latestTurn = turns[turns.length - 1];
+  const hasWorkspaceRoom =
+    session.trackSlug === 'software-engineering' ||
+    session.trackSlug === 'system-design' ||
+    session.trackSlug === 'consulting';
 
-  return (
+  const chatTranscriptSection = (
     <div className="space-y-5">
-      <div className="flex flex-col justify-between gap-4 rounded-[12px] border border-border bg-surface p-4 sm:flex-row sm:items-center">
-        <div className="flex items-center gap-3">
-          <InterviewerOrb
-            speaking={streaming || aiSpeaking}
-            name={`Alex · ${session.role} (${session.level})`}
-          />
-          <Badge variant="neutral">
-            {voiceMode === 'gemini-live' ? 'Gemini Live' : 'Voice + Text'}
-          </Badge>
-          <RecordingBadge recording={recording} />
-        </div>
-
-        <SessionTimer
-          elapsedSec={elapsedSec}
-          paused={paused}
-          onTogglePause={() => setPaused((p) => !p)}
-          onRepeatQuestion={handleRepeatQuestion}
-          onEndInterview={handleEndInterview}
-          ending={ending}
-        />
-      </div>
-
       <LiveCaption
         speaker={latestTurn?.speaker ?? null}
         text={latestTurn?.text ?? ''}
@@ -440,6 +425,72 @@ export default function LiveInterviewPage() {
           </form>
         </CardContent>
       </Card>
+    </div>
+  );
+
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-col justify-between gap-4 rounded-[12px] border border-border bg-surface p-4 sm:flex-row sm:items-center">
+        <div className="flex flex-wrap items-center gap-3">
+          <InterviewerOrb
+            speaking={streaming || aiSpeaking}
+            name={`Alex · ${session.role} (${session.level})`}
+          />
+          <Badge variant="neutral">
+            {voiceMode === 'gemini-live' ? 'Gemini Live' : 'Voice + Text'}
+          </Badge>
+          {session.formatSlug === 'panel' && (
+            <Badge variant="primary">Panel (3 Interviewers)</Badge>
+          )}
+          {session.formatSlug === 'one-way-recorded' && (
+            <Badge variant="warning">One-way Recorded (30s prep / 2m answer)</Badge>
+          )}
+          <RecordingBadge recording={recording} />
+        </div>
+
+        <SessionTimer
+          elapsedSec={elapsedSec}
+          paused={paused}
+          onTogglePause={() => setPaused((p) => !p)}
+          onRepeatQuestion={handleRepeatQuestion}
+          onEndInterview={handleEndInterview}
+          ending={ending}
+        />
+      </div>
+
+      {hasWorkspaceRoom ? (
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
+          <div className="lg:col-span-5">{chatTranscriptSection}</div>
+          <div className="lg:col-span-7">
+            {session.trackSlug === 'software-engineering' && (
+              <CodingRoom
+                onSnapshot={(code, testSummary, hintsUsed) => {
+                  const snapshot = `[Code Snapshot | ${testSummary} | Hints: ${hintsUsed}]\n${code}`;
+                  setInput((prev) => (prev ? `${prev}\n\n${snapshot}` : snapshot));
+                }}
+              />
+            )}
+            {session.trackSlug === 'system-design' && (
+              <WhiteboardRoom
+                onSnapshot={(summaryText, currentPhase) => {
+                  const snapshot = `[Whiteboard Phase: ${currentPhase}]\n${summaryText}`;
+                  setInput((prev) => (prev ? `${prev}\n\n${snapshot}` : snapshot));
+                }}
+              />
+            )}
+            {session.trackSlug === 'consulting' && (
+              <CaseRoom
+                onSnapshot={(scratchpadText, revealedCount) => {
+                  const snapshot = `[Case Scratchpad | Exhibits revealed: ${revealedCount}]\n${scratchpadText}`;
+                  setInput((prev) => (prev ? `${prev}\n\n${snapshot}` : snapshot));
+                }}
+              />
+            )}
+          </div>
+        </div>
+      ) : (
+        chatTranscriptSection
+      )}
     </div>
   );
 }

@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 export default function NewPracticePage() {
   const router = useRouter();
   const [trackSlug, setTrackSlug] = useState('behavioral');
+  const [formatSlug, setFormatSlug] = useState('one-on-one-video');
   const [level, setLevel] = useState('mid');
   const [role, setRole] = useState('Software Engineer');
   const [companyName, setCompanyName] = useState('');
@@ -31,7 +32,7 @@ export default function NewPracticePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           trackSlug,
-          formatSlug: 'one-on-one-video',
+          formatSlug,
           level,
           role,
           companyName: companyName || undefined,
@@ -75,22 +76,41 @@ export default function NewPracticePage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
-            <div className="space-y-2">
-              <label htmlFor="track" className="block text-xs font-medium text-text">
-                Track
-              </label>
-              <select
-                id="track"
-                value={trackSlug}
-                onChange={(e) => setTrackSlug(e.target.value)}
-                className="h-10 w-full rounded-[8px] border border-border bg-bg px-3 text-sm text-text"
-              >
-                {MVP_TRACKS.map((t) => (
-                  <option key={t.slug} value={t.slug}>
-                    {t.name}
-                  </option>
-                ))}
-              </select>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <label htmlFor="track" className="block text-xs font-medium text-text">
+                  Track
+                </label>
+                <select
+                  id="track"
+                  value={trackSlug}
+                  onChange={(e) => setTrackSlug(e.target.value)}
+                  className="h-10 w-full rounded-[8px] border border-border bg-bg px-3 text-sm text-text"
+                >
+                  {MVP_TRACKS.map((t) => (
+                    <option key={t.slug} value={t.slug}>
+                      {t.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="format" className="block text-xs font-medium text-text">
+                  Format
+                </label>
+                <select
+                  id="format"
+                  value={formatSlug}
+                  onChange={(e) => setFormatSlug(e.target.value)}
+                  className="h-10 w-full rounded-[8px] border border-border bg-bg px-3 text-sm text-text"
+                >
+                  <option value="one-on-one-video">One-on-One Video</option>
+                  <option value="live-technical">Live Technical (Code / Whiteboard)</option>
+                  <option value="case-interview">Case Interview</option>
+                  <option value="panel">Panel (3 Interviewers)</option>
+                  <option value="one-way-recorded">One-way Recorded (30s prep / 2m answer)</option>
+                </select>
+              </div>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
