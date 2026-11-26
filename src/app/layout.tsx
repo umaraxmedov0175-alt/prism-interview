@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
+import { CookieBanner } from '@/components/layout/CookieBanner';
 import { ThemeProvider } from '@/components/layout/ThemeProvider';
 import './globals.css';
 
@@ -34,6 +35,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-bg text-text antialiased">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           {children}
+          <CookieBanner />
         </ThemeProvider>
       </body>
     </html>

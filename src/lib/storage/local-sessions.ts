@@ -163,3 +163,27 @@ export function toggleSavedQuestionId(id: string): string[] {
   }
   return next;
 }
+
+export function exportAllUserData(): string {
+  return JSON.stringify(
+    {
+      exportedAt: new Date().toISOString(),
+      sessions: listSessions(),
+      reports: listReports(),
+      stories: listStories(),
+      plan: getSavedPlan(),
+      savedQuestionIds: getSavedQuestionIds(),
+    },
+    null,
+    2
+  );
+}
+
+export function clearAllUserData() {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem(SESSIONS_KEY);
+  localStorage.removeItem(REPORTS_KEY);
+  localStorage.removeItem(STORIES_KEY);
+  localStorage.removeItem(PLAN_KEY);
+  localStorage.removeItem(SAVED_QS_KEY);
+}

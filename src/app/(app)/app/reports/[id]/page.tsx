@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowRight, Target } from 'lucide-react';
+import { ArrowRight, Printer, Target } from 'lucide-react';
 import { MetricTile } from '@/components/interview/MetricTile';
 import { ReplayPlayer } from '@/components/interview/ReplayPlayer';
 import { RubricBar } from '@/components/interview/RubricBar';
@@ -53,9 +53,15 @@ export default function ReportDetailPage() {
           </p>
           <h1 className="text-2xl font-semibold text-text">Interview Feedback Report</h1>
         </div>
-        <Button variant="outline" asChild>
-          <Link href="/app/practice/new">Run another mock</Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button type="button" variant="outline" onClick={() => window.print()}>
+            <Printer className="h-4 w-4" />
+            Export PDF
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/app/practice/new">Run another mock</Link>
+          </Button>
+        </div>
       </div>
 
       {/* Overview */}
