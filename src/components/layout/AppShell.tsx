@@ -4,7 +4,11 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
+  BarChart3,
+  BookOpen,
+  Calendar,
   FileText,
+  HelpCircle,
   Home,
   Menu,
   Mic,
@@ -24,6 +28,10 @@ const NAV_ITEMS = [
   { href: '/app/practice/new', label: 'New Mock', icon: Mic },
   { href: '/app/reports', label: 'Reports', icon: FileText },
   { href: '/app/drills', label: 'Drills', icon: Target },
+  { href: '/app/stories', label: 'Story Bank', icon: BookOpen },
+  { href: '/app/plan', label: 'Interview Plan', icon: Calendar },
+  { href: '/app/questions', label: 'Questions', icon: HelpCircle },
+  { href: '/app/progress', label: 'Progress', icon: BarChart3 },
   { href: '/app/settings', label: 'Settings', icon: Settings },
 ];
 

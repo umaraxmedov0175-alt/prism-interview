@@ -74,3 +74,92 @@ export function listReports(): StoredReport[] {
     return [];
   }
 }
+
+export interface StoredStory {
+  id: string;
+  title: string;
+  situation: string;
+  task: string;
+  action: string;
+  result: string;
+  learning: string;
+  metrics: string;
+  competencies: string[];
+  createdAt: string;
+}
+
+export interface InterviewPlanDay {
+  day: number;
+  date: string;
+  focus: string;
+  tasks: string[];
+}
+
+export interface StoredPlan {
+  jobDescription: string;
+  interviewDate: string;
+  hoursPerDay: number;
+  days: InterviewPlanDay[];
+  updatedAt: string;
+}
+
+const STORIES_KEY = 'prism_stories_v1';
+const PLAN_KEY = 'prism_plan_v1';
+const SAVED_QS_KEY = 'prism_saved_questions_v1';
+
+export function listStories(): StoredStory[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    return JSON.parse(localStorage.getItem(STORIES_KEY) ?? '[]') as StoredStory[];
+  } catch {
+    return [];
+  }
+}
+
+export function saveStory(story: StoredStory) {
+  if (typeof window === 'undefined') return;
+  const all = listStories().filter((s) => s.id !== story.id);
+  all.unshift(story);
+  localStorage.setItem(STORIES_KEY, JSON.stringify(all));
+}
+
+export function deleteStory(id: string) {
+  if (typeof window === 'undefined') return;
+  const all = listStories().filter((s) => s.id !== id);
+  localStorage.setItem(STORIES_KEY, JSON.stringify(all));
+}
+
+export function getSavedPlan(): StoredPlan | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(PLAN_KEY);
+    return raw ? (JSON.parse(raw) as StoredPlan) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function savePlan(plan: StoredPlan) {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(PLAN_KEY, JSON.stringify(plan));
+}
+
+export function getSavedQuestionIds(): string[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    return JSON.parse(localStorage.getItem(SAVED_QS_KEY) ?? '[]') as string[];
+  } catch {
+    return [];
+  }
+}
+
+export function toggleSavedQuestionId(id: string): string[] {
+  const current = new Set(getSavedQuestionIds());
+  if (current.has(id)) current.delete(id);
+  else current.add(id);
+  const next = Array.from(current);
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(SAVED_QS_KEY, JSON.stringify(next));
+  }
+  return next;
+}

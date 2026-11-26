@@ -20,8 +20,11 @@ export function MarketingNav() {
           <Link href="/#tracks" className="transition-colors hover:text-text">
             Tracks
           </Link>
-          <Link href="/#how-it-works" className="transition-colors hover:text-text">
-            How it works
+          <Link href="/questions" className="transition-colors hover:text-text">
+            Questions
+          </Link>
+          <Link href="/learn" className="transition-colors hover:text-text">
+            Learn
           </Link>
           <Link href="/pricing" className="transition-colors hover:text-text">
             Pricing
