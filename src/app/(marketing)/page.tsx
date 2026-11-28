@@ -1,361 +1,248 @@
 import Link from 'next/link';
-import { ArrowRight, Check, Mic, ShieldCheck, Sparkles, Target } from 'lucide-react';
+import { HeroSandbox } from '@/components/marketing/HeroSandbox';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 
-const TRACKS = [
+const TRACK_ROWS = [
   {
-    name: 'Behavioral / Competency',
-    desc: 'STAR structure, ownership, conflict, failure, and leadership.',
+    slug: 'behavioral',
+    name: 'Behavioral & Competency',
+    focus: 'STAR structure, personal ownership, conflict, failure, and measurable impact.',
     tool: 'STAR checker',
   },
   {
-    name: 'General / HR Screen',
-    desc: 'Tell me about yourself, motivation, strengths, weaknesses, and role fit.',
+    slug: 'general-hr',
+    name: 'General & HR Screen',
+    focus: 'Career narrative, role motivation, strengths, weaknesses, and questions to ask.',
     tool: 'Rubric grading',
   },
   {
+    slug: 'software-engineering',
     name: 'Software Engineering',
-    desc: 'Data structures, algorithms, debugging, complexity, and code quality.',
-    tool: 'Code editor',
+    focus: 'Data structures, algorithms, debugging, complexity, and code quality.',
+    tool: 'Code editor + runner',
   },
   {
+    slug: 'system-design',
     name: 'System Design',
-    desc: 'Requirements, estimates, API, data model, scaling, and trade-offs.',
+    focus: 'Requirements, estimates, APIs, data modeling, scaling, and trade-offs.',
     tool: 'Whiteboard',
   },
   {
-    name: 'Product Management',
-    desc: 'Product sense, metrics, prioritization, execution, and strategy.',
-    tool: 'Whiteboard',
-  },
-  {
+    slug: 'consulting',
     name: 'Consulting & Case',
-    desc: 'Market sizing, profitability, M&A, exhibits, and case math.',
-    tool: 'Scratchpad',
+    focus: 'Profitability, market entry, market sizing, exhibits, and case math.',
+    tool: 'Exhibits + calculator',
   },
 ];
 
-const STEPS = [
+const WORKFLOW_STEPS = [
   {
     step: '01',
-    title: 'Pick your exact interview',
-    desc: 'Choose track, seniority level, format, and paste a job description if you have one.',
+    title: 'Configure the exact round',
+    body: 'Pick track, seniority, format, and paste a job description. No generic question lists.',
   },
   {
     step: '02',
-    title: 'Answer realistic follow-ups',
-    desc: 'The AI interviewer listens, pushes back on vague claims, and asks for your specific role.',
+    title: 'Defend vague claims live',
+    body: 'The interviewer listens by voice or text, interrupts politely on time, and pushes back when ownership or numbers are missing.',
   },
   {
     step: '03',
-    title: 'Fix what actually matters',
-    desc: 'Get rubric scores with transcript quotes, delivery metrics, and targeted single-question drills.',
+    title: 'Drill the exact weak spot',
+    body: 'Review transcript-quoted rubric scores, computed speech metrics, and retry single questions side by side.',
   },
 ];
 
 const FAQS = [
   {
     q: 'Does Prism: Interview work as a live-interview copilot?',
-    a: 'No. We never build stealth overlays or live-interview answer helpers. Prism: Interview is strictly for honest practice before your interview.',
+    a: 'No. We never build stealth overlays or hidden answer helpers for real interviews. Prism: Interview is strictly for honest practice before you walk in.',
   },
   {
-    q: 'Does the AI write full scripted answers for me to memorize?',
-    a: 'No. The grader builds improved bulleted structure outlines using only the facts you stated, and marks missing details for you to fill in.',
+    q: 'Does the AI write full scripted answers to memorize?',
+    a: 'No. The grader builds improved bulleted outlines using only the facts you actually stated, marking missing details for you to supply.',
   },
   {
     q: 'How are delivery metrics computed?',
-    a: 'Words per minute, filler words, hedging phrases, pauses, and talk ratio are computed deterministically in code from your transcript—never guessed by the model, and we never score accent.',
+    a: 'Words per minute, filler words, hedging phrases, pauses, and I/we balance are computed deterministically in code from your transcript—never guessed by an LLM, and we never score accent.',
   },
 ];
 
 export default function HomePage() {
   return (
-    <div>
-      {/* Hero */}
+    <div className="bg-bg text-text">
+      {/* Hero — Asymmetric Split with Live Interactive Sandbox */}
       <section className="border-b border-border py-16 sm:py-24">
         <div className="mx-auto grid max-w-[1200px] gap-12 px-4 sm:px-6 lg:grid-cols-12 lg:items-center">
-          <div className="space-y-6 lg:col-span-7">
-            <Badge variant="primary">
-              <ShieldCheck className="h-3.5 w-3.5" />
-              Practice-only. No live-interview copilot.
-            </Badge>
-            <h1 className="text-4xl font-semibold tracking-tight text-text sm:text-5xl lg:text-[56px] lg:leading-[1.08]">
+          <div className="space-y-6 lg:col-span-6">
+            <h1 className="text-4xl font-semibold tracking-[-0.03em] text-text sm:text-5xl lg:text-[54px] lg:leading-[1.06]">
               Practice the exact interview you are about to face.
             </h1>
-            <p className="max-w-xl text-base text-text-muted sm:text-lg">
+            <p className="max-w-[52ch] text-base leading-relaxed text-text-muted sm:text-lg">
               An AI interviewer that listens, asks adaptive follow-ups when your answer is vague,
-              and grades every response against a published rubric.
+              and grades every response against a published rubric. Practice-only, 100% free.
             </p>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3 pt-1">
               <Button size="lg" asChild>
-                <Link href="/auth/login">
-                  Start free mock
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
+                <Link href="/app/practice/new">Start a mock interview</Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link href="/#sample-report">See sample report</Link>
+                <Link href="/questions">Browse question bank</Link>
               </Button>
             </div>
-            <p className="text-xs text-text-muted">
-              Free tier includes 3 mock sessions/month, question bank access, and rubric feedback.
-            </p>
           </div>
 
-          {/* Live session preview card */}
-          <div className="lg:col-span-5">
-            <Card className="overflow-hidden border-border bg-surface">
-              <CardHeader className="border-b border-border bg-bg/60 py-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="h-2.5 w-2.5 rounded-full bg-primary" aria-hidden="true" />
-                    <span className="text-xs font-medium text-text">
-                      Behavioral · Senior · Neutral Persona
-                    </span>
-                  </div>
-                  <span className="font-mono text-xs text-text-muted">08:42</span>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4 p-5">
-                <div className="space-y-1.5 rounded-[8px] border border-border bg-bg p-3.5">
-                  <p className="text-xs font-medium text-primary">Interviewer</p>
-                  <p className="text-sm text-text">
-                    You mentioned the migration cut latency. What was your specific individual role,
-                    and what numbers changed?
-                  </p>
-                </div>
-                <div className="space-y-1.5 rounded-[8px] border border-border bg-bg p-3.5">
-                  <p className="text-xs font-medium text-text-muted">Your answer (transcript)</p>
-                  <p className="text-sm text-text-muted">
-                    I led the query-plan rewrite for the checkout service, reducing p95 latency from
-                    420 ms to 115 ms over three weeks.
-                  </p>
-                </div>
-                <div className="flex items-center justify-between rounded-[8px] border border-border bg-bg px-3.5 py-2.5 text-xs">
-                  <span className="flex items-center gap-1.5 text-text-muted">
-                    <Mic className="h-3.5 w-3.5 text-primary" />
-                    Adaptive follow-up · 1 of 2
-                  </span>
-                  <span className="font-mono text-success">Specificity: 5/5</span>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="lg:col-span-6">
+            <HeroSandbox />
           </div>
         </div>
       </section>
 
-      {/* How it works */}
+      {/* Editorial 3-Step Ledger (no card boxes) */}
       <section id="how-it-works" className="border-b border-border py-16 sm:py-20">
         <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
-          <div className="mb-10 max-w-2xl space-y-2">
-            <h2 className="text-2xl font-semibold text-text sm:text-3xl">How it works</h2>
-            <p className="text-text-muted">
-              Go from landing page to your first graded mock session in under three minutes.
-            </p>
-          </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            {STEPS.map((item) => (
-              <Card key={item.step}>
-                <CardHeader>
-                  <span className="font-mono text-xs font-medium text-primary">{item.step}</span>
-                  <CardTitle className="mt-1 text-lg">{item.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-text-muted">{item.desc}</p>
-                </CardContent>
-              </Card>
+          <h2 className="mb-10 text-2xl font-semibold tracking-[-0.025em] text-text sm:text-3xl">
+            How a session works
+          </h2>
+          <div className="grid divide-y divide-border border-y border-border md:grid-cols-3 md:divide-x md:divide-y-0">
+            {WORKFLOW_STEPS.map((item) => (
+              <div key={item.step} className="space-y-2 py-6 md:px-6 md:first:pl-0 md:last:pr-0">
+                <span className="font-mono text-xs text-primary">{item.step}</span>
+                <h3 className="text-base font-semibold text-text">{item.title}</h3>
+                <p className="text-sm leading-relaxed text-text-muted">{item.body}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Track grid */}
+      {/* Hairline Track Index (no identical card grid) */}
       <section id="tracks" className="border-b border-border py-16 sm:py-20">
         <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
-          <div className="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-            <div className="max-w-2xl space-y-2">
-              <h2 className="text-2xl font-semibold text-text sm:text-3xl">
-                Built for every interview round
+          <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div className="space-y-1.5">
+              <h2 className="text-2xl font-semibold tracking-[-0.025em] text-text sm:text-3xl">
+                Interview tracks &amp; workspaces
               </h2>
-              <p className="text-text-muted">
-                Every session pairs a track (what is tested) with a format (how it runs).
+              <p className="text-sm text-text-muted">
+                Every track pairs domain rubrics with a dedicated interactive room.
               </p>
             </div>
-            <Button variant="outline" asChild>
-              <Link href="/auth/login">Explore tracks in app</Link>
-            </Button>
+            <Link href="/app/practice/new" className="text-sm font-medium text-primary hover:underline">
+              Configure a session
+            </Link>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {TRACKS.map((track) => (
-              <Card key={track.name} className="transition-colors hover:border-primary/40">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <CardTitle className="text-base">{track.name}</CardTitle>
-                    <Badge variant="neutral">{track.tool}</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-text-muted">{track.desc}</p>
-                </CardContent>
-              </Card>
+
+          <div className="divide-y divide-border border-y border-border">
+            {TRACK_ROWS.map((row) => (
+              <div
+                key={row.slug}
+                className="grid gap-3 py-4 sm:grid-cols-12 sm:items-center"
+              >
+                <div className="sm:col-span-3">
+                  <span className="font-medium text-text">{row.name}</span>
+                </div>
+                <div className="sm:col-span-6">
+                  <p className="text-sm text-text-muted">{row.focus}</p>
+                </div>
+                <div className="flex items-center justify-between gap-4 sm:col-span-3 sm:justify-end">
+                  <span className="font-mono text-xs text-text-muted">{row.tool}</span>
+                  <Link
+                    href="/app/practice/new"
+                    className="text-xs font-medium text-primary hover:underline"
+                  >
+                    Launch
+                  </Link>
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Sample Report Preview */}
+      {/* Sample Debrief Split */}
       <section id="sample-report" className="border-b border-border py-16 sm:py-20">
-        <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
-          <div className="mb-10 max-w-2xl space-y-2">
-            <Badge variant="neutral">Sample Report</Badge>
-            <h2 className="text-2xl font-semibold text-text sm:text-3xl">
-              Content, delivery, and technicals in one debrief
+        <div className="mx-auto grid max-w-[1200px] gap-10 px-4 sm:px-6 lg:grid-cols-12">
+          <div className="space-y-4 lg:col-span-5">
+            <h2 className="text-2xl font-semibold tracking-[-0.025em] text-text sm:text-3xl">
+              Scored against evidence, not vibes
             </h2>
-            <p className="text-text-muted">
-              Every score is backed by a quoted line from your transcript and a drill to fix it.
+            <p className="text-sm leading-relaxed text-text-muted">
+              Every rubric dimension quotes a specific line from your transcript. Delivery metrics
+              are computed deterministically in code, and top fixes link directly to a 2-minute
+              retry drill.
+            </p>
+            <div className="grid grid-cols-2 divide-x divide-border rounded-[12px] border border-border bg-surface p-4">
+              <div>
+                <p className="text-xs text-text-muted">Sample Score</p>
+                <p className="mt-1 font-mono text-3xl font-semibold text-text">78 / 100</p>
+              </div>
+              <div className="pl-4">
+                <p className="text-xs text-text-muted">Computed Pace</p>
+                <p className="mt-1 font-mono text-3xl font-semibold text-text">144 WPM</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="divide-y divide-border rounded-[12px] border border-border bg-surface lg:col-span-7">
+            {[
+              {
+                dim: 'Structure / STAR',
+                score: '4 / 5',
+                quote: '“I led the query-plan rewrite for the checkout service...”',
+                tone: 'text-success',
+              },
+              {
+                dim: 'Specificity and evidence',
+                score: '5 / 5',
+                quote: '“...reducing p95 latency from 420 ms to 115 ms over three weeks.”',
+                tone: 'text-success',
+              },
+              {
+                dim: 'Ownership and impact',
+                score: '3 / 5',
+                quote: '“We rolled out the index change during the Tuesday deploy.”',
+                tone: 'text-warning',
+              },
+              {
+                dim: 'Reflection and learning',
+                score: '2 / 5',
+                quote: 'No reflection on trade-offs or what would change next time.',
+                tone: 'text-danger',
+              },
+            ].map((item) => (
+              <div key={item.dim} className="flex flex-col justify-between gap-2 p-4 sm:flex-row sm:items-center">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium text-text">{item.dim}</p>
+                  <p className="text-xs text-text-muted">{item.quote}</p>
+                </div>
+                <span className={`shrink-0 font-mono text-sm font-semibold ${item.tone}`}>
+                  {item.score}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Honest & Free + FAQ */}
+      <section className="py-16 sm:py-20">
+        <div className="mx-auto grid max-w-[1200px] gap-12 px-4 sm:px-6 lg:grid-cols-12">
+          <div className="space-y-3 lg:col-span-4">
+            <h2 className="text-2xl font-semibold tracking-[-0.025em] text-text">
+              Questions &amp; principles
+            </h2>
+            <p className="text-sm leading-relaxed text-text-muted">
+              100% free to run and practice. No live-interview copilot, no fabricated stories, and
+              no hidden paywalls.
             </p>
           </div>
-
-          <Card>
-            <CardContent className="grid gap-8 p-6 lg:grid-cols-12">
-              <div className="space-y-4 lg:col-span-4">
-                <div className="rounded-[8px] border border-border bg-bg p-4">
-                  <p className="text-xs text-text-muted">Overall Score</p>
-                  <div className="mt-1 flex items-baseline gap-3">
-                    <span className="font-mono text-4xl font-semibold text-text">78</span>
-                    <span className="text-sm text-text-muted">/ 100</span>
-                    <Badge variant="success">Lean yes</Badge>
-                  </div>
-                </div>
-                <div className="rounded-[8px] border border-border bg-bg p-4 space-y-2">
-                  <p className="text-xs font-medium text-text">Delivery Metrics (computed)</p>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-text-muted">Pace</span>
-                    <span className="font-mono text-text">144 WPM</span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-text-muted">Filler words</span>
-                    <span className="font-mono text-success">1.8%</span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-text-muted">Avg answer length</span>
-                    <span className="font-mono text-text">118 s</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4 lg:col-span-8">
-                <p className="text-sm font-semibold text-text">Rubric Breakdown (1–5 scale)</p>
-                <div className="space-y-3">
-                  {[
-                    { name: 'Structure / STAR', score: 4, tone: 'bg-success' },
-                    { name: 'Specificity and evidence', score: 5, tone: 'bg-success' },
-                    { name: 'Ownership and impact', score: 3, tone: 'bg-warning' },
-                    { name: 'Reflection and learning', score: 2, tone: 'bg-danger' },
-                  ].map((dim) => (
-                    <div key={dim.name} className="space-y-1">
-                      <div className="flex justify-between text-xs">
-                        <span className="text-text">{dim.name}</span>
-                        <span className="font-mono font-medium text-text">{dim.score} / 5</span>
-                      </div>
-                      <div className="h-2 w-full overflow-hidden rounded-full bg-border">
-                        <div
-                          className={`h-full rounded-full ${dim.tone}`}
-                          style={{ width: `${(dim.score / 5) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="rounded-[8px] border border-border bg-bg p-4">
-                  <p className="text-xs font-medium text-text flex items-center gap-1.5">
-                    <Target className="h-3.5 w-3.5 text-primary" />
-                    Top Fix #1 — Add measurable reflection
-                  </p>
-                  <p className="mt-1 text-xs text-text-muted">
-                    Your answer stopped at the launch metric. Close with what you would change next
-                    time.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* Pricing teaser */}
-      <section className="border-b border-border py-16 sm:py-20">
-        <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
-          <div className="mb-10 max-w-2xl space-y-2">
-            <h2 className="text-2xl font-semibold text-text sm:text-3xl">Simple pricing</h2>
-            <p className="text-text-muted">Start free. Upgrade only when you need unlimited mocks.</p>
-          </div>
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Free</CardTitle>
-                <p className="font-mono text-3xl font-semibold text-text">$0</p>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm text-text-muted">
-                <p className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-success" />3 mock sessions / month (up to 15 min)
-                </p>
-                <p className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-success" />
-                  Full question bank & basic rubric report
-                </p>
-                <Button variant="outline" className="mt-4 w-full" asChild>
-                  <Link href="/auth/login">Start free</Link>
-                </Button>
-              </CardContent>
-            </Card>
-            <Card className="border-primary/40">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Pro</CardTitle>
-                  <Badge variant="primary">
-                    <Sparkles className="h-3 w-3" />
-                    Full access
-                  </Badge>
-                </div>
-                <p className="font-mono text-3xl font-semibold text-text">
-                  $19<span className="text-sm font-normal text-text-muted">/month</span>
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm text-text-muted">
-                <p className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-success" />
-                  Unlimited mocks across all tracks & formats
-                </p>
-                <p className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-success" />
-                  Full reports, replay, drills, and Interview Plan
-                </p>
-                <Button className="mt-4 w-full" asChild>
-                  <Link href="/pricing">View full pricing</Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="py-16 sm:py-20">
-        <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
-          <h2 className="mb-8 text-2xl font-semibold text-text sm:text-3xl">FAQ</h2>
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="divide-y divide-border border-t border-border lg:col-span-8">
             {FAQS.map((faq) => (
-              <Card key={faq.q}>
-                <CardHeader>
-                  <CardTitle className="text-base">{faq.q}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-text-muted">{faq.a}</p>
-                </CardContent>
-              </Card>
+              <div key={faq.q} className="space-y-1.5 py-5">
+                <h3 className="text-base font-medium text-text">{faq.q}</h3>
+                <p className="text-sm leading-relaxed text-text-muted">{faq.a}</p>
+              </div>
             ))}
           </div>
         </div>

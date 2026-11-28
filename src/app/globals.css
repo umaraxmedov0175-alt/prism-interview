@@ -51,6 +51,7 @@ body {
   background-color: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
+  font-feature-settings: 'cv01', 'ss03';
   min-height: 100vh;
 }
 
